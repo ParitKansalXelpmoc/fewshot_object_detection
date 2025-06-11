@@ -378,9 +378,13 @@ class AnnotationApp:
     def _action_save_annotations(self, called_from_next=False):
         if not self.current_subfolder_name: return False
 
+        # --- FIX: Use .copy() to prevent overwriting saved data ---
+        # By creating a shallow copy, we ensure that the dictionary stored in
+        # self.annotations_data is a separate object from the one being actively
+        # used and cleared (self.current_subfolder_active_annotations).
         self.annotations_data[self.current_subfolder_name] = {
             "type_of_annotation": self.annotation_type_var.get(),
-            "annotations": self.current_subfolder_active_annotations
+            "annotations": self.current_subfolder_active_annotations.copy()
         }
         self._write_json_file(ANNOTATIONS_FILE, self.annotations_data)
         
@@ -452,7 +456,6 @@ class AnnotationApp:
 
     def _load_annotations_from_file(self):
         self.annotations_data = self._read_json_file(ANNOTATIONS_FILE, {})
-        # THIS IS THE FIX: Update counts right after loading the annotation data
         self._update_annotation_counts()
 
     def _load_progress_from_file(self):
